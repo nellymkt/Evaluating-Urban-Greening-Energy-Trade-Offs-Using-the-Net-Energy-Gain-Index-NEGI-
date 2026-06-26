@@ -4,8 +4,7 @@ import matplotlib.pyplot as plt
 import sklearn
 
 from xgboost import XGBRegressor
-from sklearn.model_selection import train_test_split
-from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import train_test_split, cross_val_score, KFold
 from sklearn.metrics import mean_squared_error, r2_score
 
 print("Scikit-learn version:", sklearn.__version__)
@@ -32,6 +31,7 @@ X_train, X_test, y_train, y_test = train_test_split(
 )
 
 model = XGBRegressor(
+    objective="reg:squarederror",
     n_estimators=200,
     max_depth=5,
     learning_rate=0.1,
@@ -42,7 +42,13 @@ model.fit(X_train, y_train)
 
 pred = model.predict(X_test)
 
-cv_scores = cross_val_score(model, X, y, cv=5, scoring="r2")
+cv = KFold(
+    n_splits=5,
+    shuffle=True,
+    random_state=42
+)
+
+cv_scores = cross_val_score(model, X, y, cv=cv, scoring="r2")
 print("Cross-validated R²:", cv_scores.mean().round(3))
 
 mse = mean_squared_error(y_test, pred)
@@ -77,8 +83,6 @@ plt.savefig(
     bbox_inches="tight"
 )
 plt.show()
-
-# FIGURES SECTION
 
 # FIGURE 1: NDVI Distribution
 plt.figure()
@@ -162,7 +166,6 @@ scenarios = np.array([
     0.30, 0.35, 0.40, 0.45, 0.50
 ])
 
-
 ndbi_mean = df["NDBI"].mean()
 
 baseline_lst = model.predict(
@@ -182,27 +185,23 @@ predicted_lsts = np.array(predicted_lsts)
 
 delta_T = baseline_lst - predicted_lsts
 
-
 w0 = 200  # baseline irrigation coefficient
-water_demand = scenarios * w0
+irrigation_index = scenarios * w0
 
-
-energy_costs = water_demand * desal_energy_intensity
-
+desalination_energy = irrigation_index * desal_energy_intensity
 
 alpha = 10  # empirical scaling coefficient
 cooling_energy_equivalent = delta_T * alpha
 
-
-NEGI = cooling_energy_equivalent - energy_costs
+NEGI = cooling_energy_equivalent - desalination_energy
 
 scenario_results = pd.DataFrame({
     "FVC": scenarios,
     "Predicted_LST": predicted_lsts,
-    "Temperature_Reduction": delta_T,
-    "Water_Index": water_demand,
-    "Desalination_Energy": energy_costs,
-    "Cooling_Benefit": cooling_energy_equivalent,
+    "Temperature_Reduction_degC": delta_T,
+    "Water_Index": irrigation_index,
+    "Relative_Desalination_Energy": desalination_energy,
+    "Relative_Cooling_Benefit": cooling_energy_equivalent,
     "NEGI": NEGI
 })
 
@@ -218,7 +217,7 @@ plt.plot(
 )
 plt.plot(
     scenarios * 100,
-    energy_costs,
+    desalination_energy,
     marker="s",
     label="Desalination Energy Cost"
 )
@@ -277,7 +276,7 @@ print(scenarios)
 print("\nCooling Energy:")
 print(cooling_energy_equivalent)
 print("\nDesalination Energy:")
-print(energy_costs)
+print(desalination_energy)
 print("\nNEGI:")
 print(NEGI)
 
@@ -290,8 +289,8 @@ results = []
 for alpha in alpha_values:
     cooling = delta_T * alpha
     for w0 in w0_values:
-        water = scenarios * w0
-        desal = water * desal_energy_intensity
+        irr = scenarios * w0
+        desal = irr * desal_energy_intensity
         negi = cooling - desal
         optimum = scenarios[np.argmax(negi)] * 100
         results.append({
