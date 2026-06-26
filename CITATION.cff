@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+title: "Evaluating Urban Greening Energy Trade-Offs Using the Net Energy Gain Index (NEGI)"
+message: "If you use this repository, please cite the accompanying publication."
+type: software
+
+author:
+  - family-names: Almaktoum
+    given-names: Nelly F.
+
+repository-code: https://github.com/nellyfmk/NEGI-Framework
+
+license: MIT
+
+keywords:
+  - Urban Heat Island
+  - Remote Sensing
+  - Machine Learning
+  - XGBoost
+  - Desalination
+  - Net Energy Gain Index
