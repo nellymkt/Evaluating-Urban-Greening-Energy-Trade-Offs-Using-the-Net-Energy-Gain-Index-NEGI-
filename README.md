@@ -54,7 +54,6 @@ NEGI-Framework/
 │   ├── Scenario_Results.csv
 │   └── Sensitivity_Analysis.csv
 │
-│
 ├── src/
 │   └── negi_framework.py
 │
