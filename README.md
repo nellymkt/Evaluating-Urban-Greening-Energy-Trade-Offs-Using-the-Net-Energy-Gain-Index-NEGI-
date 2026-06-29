@@ -2,7 +2,7 @@
 
 This repository contains the Python implementation accompanying the manuscript:
 
-> **Evaluating Urban Greening Energy Trade-Offs in Desalination-Dependent Cities Using Machine Learning and the Net Energy Gain Index (NEGI)**
+> **A Remote Sensing and Machine Learning Framework for Evaluating Urban Greening Energy Trade-Offs in Desalination-Dependent Cities**
 
 The framework evaluates the net energy implications of urban greening by integrating satellite remote sensing, machine learning, and desalination-related energy assessment. Using **Jeddah, Saudi Arabia**, as a case study, the methodology combines Landsat 8 observations, XGBoost regression, and scenario analysis to identify vegetation levels that maximize relative net energy performance.
 
